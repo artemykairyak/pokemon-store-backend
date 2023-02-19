@@ -1,14 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import {Card} from "./card.entity";
+import { Card } from './card.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CreateCardInput } from './dto/create-card.input';
+import { AuthorsService } from '../authors/authors.service';
 
 @Injectable()
 export class CardsService {
-  async findAll(): Promise<Card[]> {
-    const card = new Card();
-    card.id = 1;
-    card.name = 'Bulbasaur';
-    card.picture = 'sds';
+  constructor(
+    @InjectRepository(Card)
+    private cardsRepository: Repository<Card>,
+    private authorsService: AuthorsService,
+  ) {}
 
-    return [card]
+  create(createCardInput: CreateCardInput) {
+    const newCard = this.cardsRepository.create(createCardInput);
+
+    return this.cardsRepository.save(newCard);
+  }
+
+  findAll() {
+    return this.cardsRepository.find();
+  }
+
+  findOne(id: number) {
+    return this.cardsRepository.findOneOrFail({ where: { id } });
+  }
+
+  getAuthor(authorId: number) {
+    return this.authorsService.findOne(authorId);
   }
 }
