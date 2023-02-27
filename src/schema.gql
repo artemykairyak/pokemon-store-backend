@@ -18,11 +18,24 @@ type Card {
   author: Author!
 }
 
+type User {
+  id: Int!
+  username: String!
+  password: String!
+}
+
+type LoginResponse {
+  access_token: String!
+  user: User!
+}
+
 type Query {
-  cards: [Card!]!
+  getAllCards: [Card!]!
   getCard(id: Int!): Card!
   authors: [Author!]!
   getAuthor(id: Int!): Author!
+  users: [User!]!
+  user(username: String!): User!
 }
 
 type Mutation {
@@ -30,6 +43,9 @@ type Mutation {
   createAuthor(createAuthorInput: CreateAuthorInput!): Author!
   updateAuthor(updateAuthorInput: UpdateAuthorInput!): Author!
   removeAuthor(id: Int!): Author!
+  create(createUserInput: CreateUserInput!): User!
+  login(loginUserInput: LoginUserInput!): LoginResponse!
+  signUp(loginUserInput: LoginUserInput!): User!
 }
 
 input CreateCardInput {
@@ -48,4 +64,14 @@ input UpdateAuthorInput {
   name: String
   picture: String
   id: Int!
+}
+
+input CreateUserInput {
+  username: String!
+  password: String!
+}
+
+input LoginUserInput {
+  username: String!
+  password: String!
 }

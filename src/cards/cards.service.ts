@@ -24,7 +24,7 @@ export class CardsService {
   }
 
   findOne(id: number) {
-    return this.cardsRepository.findOneOrFail({ where: { id } });
+    return this.cardsRepository.findOne({ where: { id } });
   }
 
   getAuthor(authorId: number) {

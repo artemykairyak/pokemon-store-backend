@@ -17,7 +17,7 @@ export class CardsResolver {
   constructor(private cardsService: CardsService) {}
 
   @Query((returns) => [Card])
-  cards(): Promise<Card[]> {
+  getAllCards(): Promise<Card[]> {
     return this.cardsService.findAll();
   }
 

@@ -22,7 +22,7 @@ export class AuthorsService {
   }
 
   findOne(id: number) {
-    return this.authorsRepository.findOneOrFail({
+    return this.authorsRepository.findOne({
       where: { id },
       relations: ['cards'],
     });
