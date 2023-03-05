@@ -11,16 +11,16 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  create(createUserInput: CreateUserInput) {
+  createUser(createUserInput: CreateUserInput) {
     const user = this.usersRepository.create(createUserInput);
     return this.usersRepository.save(user);
   }
 
-  findAll() {
+  getAllUsers() {
     return this.usersRepository.find();
   }
 
-  findOne(username: string) {
+  getUserByUsername(username: string) {
     return this.usersRepository.findOne({ where: { username } });
   }
 }

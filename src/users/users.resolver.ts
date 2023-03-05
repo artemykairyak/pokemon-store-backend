@@ -10,19 +10,19 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation(() => User)
-  create(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.usersService.create(createUserInput);
+  createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
+    return this.usersService.createUser(createUserInput);
   }
 
   @Query(() => [User], { name: 'users' })
   @UseGuards(JwtAuthGuard)
-  findAll() {
-    return this.usersService.findAll();
+  getAllUsers() {
+    return this.usersService.getAllUsers();
   }
 
   @Query(() => User, { name: 'user' })
   @UseGuards(JwtAuthGuard)
-  findOne(@Args('username') username: string) {
-    return this.usersService.findOne(username);
+  getUserByUsername(@Args('username') username: string) {
+    return this.usersService.getUserByUsername(username);
   }
 }
