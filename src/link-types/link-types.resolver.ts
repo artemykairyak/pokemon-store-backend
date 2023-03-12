@@ -14,17 +14,17 @@ export class LinkTypesResolver {
     return this.linkTypesService.create(createLinkTypeInput);
   }
 
-  @Query(() => [LinkType], { name: 'linkTypes' })
-  findAll() {
+  @Query(() => [LinkType])
+  getAllLinkTypes() {
     return this.linkTypesService.findAll();
   }
 
-  @Query(() => LinkType, { name: 'linkType' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  @Query(() => LinkType)
+  getLinkTypeById(@Args('id', { type: () => Int }) id: number) {
     return this.linkTypesService.findOne(id);
   }
 
-  @Mutation(() => LinkType)
+  @Mutation(() => Boolean)
   removeLinkType(@Args('id', { type: () => Int }) id: number) {
     return this.linkTypesService.remove(id);
   }

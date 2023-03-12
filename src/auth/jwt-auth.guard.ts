@@ -19,16 +19,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return ctx.getContext().req;
   }
 
-  handleRequest(err, user, info) {
-    if (err || !user) {
-      throw err || new UnauthorizedException();
-    }
-    return user;
-  }
-
   canActivate(context) {
     const request = this.getRequest(context);
     const token = request.headers.authorization.split(' ')[1];
+
     try {
       request.user = this.jwtService.decode(token);
       return super.canActivate(context);

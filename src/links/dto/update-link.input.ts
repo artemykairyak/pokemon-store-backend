@@ -1,8 +1,15 @@
-import { CreateLinkInput } from './create-link.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 @InputType()
-export class UpdateLinkInput extends PartialType(CreateLinkInput) {
-  @Field(() => Int)
-  id: number;
+export class UpdateLinkInput {
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  url: string;
+
+  @Field()
+  @IsString()
+  @IsNotEmpty()
+  type: string;
 }

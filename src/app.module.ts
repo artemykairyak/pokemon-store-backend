@@ -42,5 +42,6 @@ import { LinkTypesModule } from './link-types/link-types.module';
   ],
   controllers: [AppController],
   providers: [AppService],
+  // exports: [JwtModule],
 })
 export class AppModule {}

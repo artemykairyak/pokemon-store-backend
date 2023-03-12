@@ -1,6 +1,7 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Token } from '../tokens/token.entity';
+import { Link } from '../links/entities/link.entity';
 
 @Entity()
 @ObjectType()
@@ -40,4 +41,8 @@ export class User {
   @OneToMany(() => Token, (token) => token.author)
   @Field(() => [Token], { nullable: true })
   authoredTokens?: Token[];
+
+  @OneToMany(() => Link, (link) => link.user)
+  @Field(() => [Link], { nullable: true })
+  links?: Link[];
 }

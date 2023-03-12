@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateLinkTypeInput } from './dto/create-link-type.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -29,14 +34,23 @@ export class LinkTypesService {
   }
 
   findAll() {
-    return `This action returns all linkTypes`;
+    return this.linkTypeRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} linkType`;
+    return this.linkTypeRepository.findOne({
+      where: { id },
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} linkType`;
+  async remove(id: number) {
+    const linkType = await this.linkTypeRepository.findOne({ where: { id } });
+
+    if (!linkType) {
+      throw new NotFoundException(`Link Type with ID ${id} not found`);
+    }
+
+    await this.linkTypeRepository.delete(id);
+    return true;
   }
 }
