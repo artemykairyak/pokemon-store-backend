@@ -1,15 +1,17 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CardsModule } from './cards/cards.module';
+import { TokensModule } from './tokens/tokens.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AuthorsModule } from './authors/authors.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { join } from 'path';
+import { TokenTypesModule } from './token-types/token-types.module';
+import { LinksModule } from './links/links.module';
+import { LinkTypesModule } from './link-types/link-types.module';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { join } from 'path';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      synchronize: false,
+      synchronize: true,
       entities: [join(__dirname + '/**/*.entity{.ts,.js}')],
       autoLoadEntities: true,
       connectTimeout: 20000,
@@ -31,10 +33,12 @@ import { join } from 'path';
       driver: ApolloDriver,
       autoSchemaFile: true,
     }),
-    CardsModule,
-    AuthorsModule,
+    TokensModule,
     UsersModule,
     AuthModule,
+    TokenTypesModule,
+    LinksModule,
+    LinkTypesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

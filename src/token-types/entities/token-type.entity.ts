@@ -1,12 +1,12 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Card } from '../../cards/card.entity';
+import { Token } from '../../tokens/token.entity';
 
 @Entity()
 @ObjectType()
-export class Author {
+export class TokenType {
   @PrimaryGeneratedColumn()
-  @Field((type) => Int)
+  @Field(() => Int)
   id: number;
 
   @Column()
@@ -17,7 +17,7 @@ export class Author {
   @Field()
   picture: string;
 
-  @OneToMany(() => Card, (card) => card.author)
-  @Field((type) => [Card], { nullable: true })
-  cards?: Card[];
+  @OneToMany(() => Token, (token) => token.type)
+  @Field(() => Token)
+  tokens: Token[];
 }

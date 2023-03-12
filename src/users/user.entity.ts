@@ -1,5 +1,6 @@
 import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Token } from '../tokens/token.entity';
 
 @Entity()
 @ObjectType()
@@ -19,4 +20,24 @@ export class User {
   @Column()
   @Field()
   email: string;
+
+  @Column()
+  @Field()
+  bio: string;
+
+  @Column()
+  @Field()
+  boughtTokensCount: number;
+
+  @Column()
+  @Field()
+  createdTokensCount: number;
+
+  @OneToMany(() => Token, (token) => token.owner)
+  @Field(() => [Token], { nullable: true })
+  ownedTokens?: Token[];
+
+  @OneToMany(() => Token, (token) => token.author)
+  @Field(() => [Token], { nullable: true })
+  authoredTokens?: Token[];
 }
