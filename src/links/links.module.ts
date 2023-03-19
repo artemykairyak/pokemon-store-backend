@@ -17,7 +17,6 @@ import { User } from '../users/user.entity';
       secret: process.env.JWT_SECRET,
     }),
   ],
-
   providers: [LinksResolver, LinksService],
 })
 export class LinksModule {}

@@ -7,11 +7,11 @@ import { Link } from '../links/entities/link.entity';
 @ObjectType()
 export class User {
   @PrimaryGeneratedColumn()
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   id: number;
 
   @Column()
-  @Field()
+  @Field({ nullable: true })
   username: string;
 
   @Column()

@@ -14,17 +14,17 @@ export class TokenTypesResolver {
     return this.tokenTypesService.create(createTokenTypeInput);
   }
 
-  @Query(() => [TokenType], { name: 'tokenTypes' })
-  findAll() {
+  @Query(() => [TokenType])
+  getAllTokenTypes() {
     return this.tokenTypesService.findAll();
   }
 
-  @Query(() => TokenType, { name: 'tokenType' })
-  findOne(@Args('id', { type: () => Int }) id: number) {
+  @Query(() => TokenType)
+  getTokenTypeById(@Args('id', { type: () => Int }) id: number) {
     return this.tokenTypesService.findOne(id);
   }
 
-  @Mutation(() => TokenType)
+  @Mutation(() => Boolean)
   removeTokenType(@Args('id', { type: () => Int }) id: number) {
     return this.tokenTypesService.remove(id);
   }

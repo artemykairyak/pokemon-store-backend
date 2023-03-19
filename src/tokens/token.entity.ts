@@ -32,7 +32,7 @@ export class Token {
 
   @ManyToOne(() => User, (user) => user.ownedTokens)
   @Field(() => User)
-  owner: User;
+  owner?: User;
 
   @ManyToOne(() => User, (user) => user.authoredTokens)
   @Field(() => User)
