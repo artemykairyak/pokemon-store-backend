@@ -4,6 +4,7 @@ import { TokensService } from './tokens.service';
 import { CreateTokenInput } from './dto/create-token.input';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { BuyTokenInput } from './dto/buy-token.input';
 
 @Resolver(() => Token)
 export class TokensResolver {
@@ -26,5 +27,20 @@ export class TokensResolver {
     @Context() context,
   ) {
     return this.tokensService.create(context.req?.user.id, createTokenInput);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  removeToken(@Args('id', { type: () => Int }) id: number, @Context() context) {
+    return this.tokensService.remove(context.req?.user.id, id);
+  }
+
+  @Query(() => Token)
+  @UseGuards(JwtAuthGuard)
+  buyToken(
+    @Args('buyTokenInput') buyTokenInput: BuyTokenInput,
+    @Context() context,
+  ) {
+    return this.tokensService.buy(context.req?.user.id, buyTokenInput);
   }
 }

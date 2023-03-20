@@ -6,16 +6,19 @@ import { Token } from './token.entity';
 import { TokenType } from '../token-types/entities/token-type.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
-import { User } from '../users/user.entity';
+import { StatsModule } from '../stats/stats.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([Token, TokenType, User]),
+    TypeOrmModule.forFeature([Token, TokenType]),
     JwtModule.register({
       signOptions: { expiresIn: process.env.JWT_EXPIRE_TIME },
       secret: process.env.JWT_SECRET,
     }),
+    StatsModule,
+    UsersModule,
   ],
   providers: [TokensService, TokensResolver],
 })

@@ -10,8 +10,8 @@ export class UsersResolver {
   constructor(private readonly usersService: UsersService) {}
 
   @Mutation(() => User)
-  createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    return this.usersService.createUser(createUserInput);
+  async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
+    return await this.usersService.createUser(createUserInput);
   }
 
   @Query(() => [User], { name: 'users' })

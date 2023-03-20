@@ -12,6 +12,7 @@ import { join } from 'path';
 import { TokenTypesModule } from './token-types/token-types.module';
 import { LinksModule } from './links/links.module';
 import { LinkTypesModule } from './link-types/link-types.module';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { LinkTypesModule } from './link-types/link-types.module';
     TokenTypesModule,
     LinksModule,
     LinkTypesModule,
+    StatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

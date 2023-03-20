@@ -21,7 +21,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
 
   canActivate(context) {
     const request = this.getRequest(context);
-    const token = request.headers.authorization.split(' ')[1];
+    const token = request.headers.authorization?.split(' ')[1];
 
     try {
       request.user = this.jwtService.decode(token);

@@ -45,11 +45,13 @@ export class AuthService {
       throw new Error('User already exists');
     }
 
-    return this.usersService.createUser({
+    await this.usersService.createUser({
       username,
       password: encryptedPassword,
       email,
     });
+
+    return true;
   }
 
   async me(username: string) {

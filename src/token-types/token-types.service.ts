@@ -18,7 +18,7 @@ export class TokenTypesService {
 
   async create(createTokenTypeInput: CreateTokenTypeInput) {
     const isExist = await this.tokenTypeRepository.findOne({
-      where: { name: createTokenTypeInput.name },
+      where: { id: createTokenTypeInput.name.toLowerCase() },
     });
 
     if (isExist) {
@@ -28,9 +28,12 @@ export class TokenTypesService {
       );
     }
 
-    const newTokenType = await this.tokenTypeRepository.create(
-      createTokenTypeInput,
-    );
+    const newTokenType = {
+      id: createTokenTypeInput.name.toLowerCase(),
+      ...createTokenTypeInput,
+    };
+
+    await this.tokenTypeRepository.create(newTokenType);
 
     return await this.tokenTypeRepository.save(newTokenType);
   }
@@ -41,14 +44,14 @@ export class TokenTypesService {
     });
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return this.tokenTypeRepository.findOneOrFail({
       where: { id },
       relations: ['tokens'],
     });
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     const tokenType = await this.tokenTypeRepository.findOne({
       where: { id },
     });

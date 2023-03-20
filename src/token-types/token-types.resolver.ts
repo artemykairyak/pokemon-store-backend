@@ -1,4 +1,4 @@
-import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { TokenTypesService } from './token-types.service';
 import { TokenType } from './entities/token-type.entity';
 import { CreateTokenTypeInput } from './dto/create-token-type.input';
@@ -20,12 +20,12 @@ export class TokenTypesResolver {
   }
 
   @Query(() => TokenType)
-  getTokenTypeById(@Args('id', { type: () => Int }) id: number) {
+  getTokenTypeById(@Args('id') id: string) {
     return this.tokenTypesService.findOne(id);
   }
 
   @Mutation(() => Boolean)
-  removeTokenType(@Args('id', { type: () => Int }) id: number) {
+  removeTokenType(@Args('id') id: string) {
     return this.tokenTypesService.remove(id);
   }
 }
