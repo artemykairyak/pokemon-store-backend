@@ -45,7 +45,7 @@ export class TokenTypesService {
   }
 
   findOne(id: string) {
-    return this.tokenTypeRepository.findOneOrFail({
+    return this.tokenTypeRepository.findOne({
       where: { id },
       relations: ['tokens'],
     });

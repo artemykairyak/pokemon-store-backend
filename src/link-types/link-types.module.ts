@@ -7,5 +7,6 @@ import { LinkType } from './entities/link-type.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([LinkType])],
   providers: [LinkTypesResolver, LinkTypesService],
+  exports: [LinkTypesService],
 })
 export class LinkTypesModule {}

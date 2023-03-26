@@ -7,5 +7,6 @@ import { TokenType } from './entities/token-type.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([TokenType])],
   providers: [TokenTypesResolver, TokenTypesService],
+  exports: [TokenTypesService],
 })
 export class TokenTypesModule {}

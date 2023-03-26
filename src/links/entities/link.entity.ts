@@ -12,10 +12,6 @@ export class Link {
 
   @Column()
   @Field()
-  title: string;
-
-  @Column()
-  @Field()
   url: string;
 
   @ManyToOne(() => LinkType)

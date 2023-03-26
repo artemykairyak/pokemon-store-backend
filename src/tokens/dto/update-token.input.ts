@@ -1,16 +1,21 @@
-import { Field, Float, InputType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 @InputType()
-export class CreateTokenInput {
+export class UpdateTokenInput {
   @Field()
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
+  id: number;
+
+  @Field({ nullable: true })
+  @IsString()
+  @IsOptional()
   name: string;
 
-  @Field()
+  @Field({ nullable: true })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   picture: string;
 
   @Field({ nullable: true })
@@ -18,13 +23,13 @@ export class CreateTokenInput {
   @IsOptional()
   description: string;
 
-  @Field(() => Float)
+  @Field({ nullable: true })
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   price: number;
 
-  @Field()
+  @Field({ nullable: true })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   type: string;
 }

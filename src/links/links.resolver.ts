@@ -1,4 +1,4 @@
-import { Args, Context, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql';
 import { LinksService } from './links.service';
 import { Link } from './entities/link.entity';
 import { CreateLinkInput } from './dto/create-link.input';
@@ -21,12 +21,6 @@ export class LinksResolver {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Query(() => [Link])
-  getAllLinks(@Context() context) {
-    return this.linksService.findAll(context.req?.user.id);
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Mutation(() => Link)
   updateLink(
     @Args('updateLinkInput') updateLinkInput: UpdateLinkInput,
@@ -35,8 +29,12 @@ export class LinksResolver {
     return this.linksService.update(context.req?.user.id, updateLinkInput);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  removeLink(@Args('id', { type: () => Int }) id: number) {
-    return this.linksService.remove(id);
+  removeLink(
+    @Args('id', { type: () => Int }) linkId: number,
+    @Context() context,
+  ) {
+    return this.linksService.remove(context.req?.user.id, linkId);
   }
 }

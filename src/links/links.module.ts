@@ -5,17 +5,20 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Link } from './entities/link.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { LinkTypesModule } from '../link-types/link-types.module';
+import { UsersModule } from '../users/users.module';
 import { LinkType } from '../link-types/entities/link-type.entity';
-import { User } from '../users/user.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([Link, LinkType, User]),
+    TypeOrmModule.forFeature([Link, LinkType]),
     JwtModule.register({
       signOptions: { expiresIn: process.env.JWT_EXPIRE_TIME },
       secret: process.env.JWT_SECRET,
     }),
+    LinkTypesModule,
+    UsersModule,
   ],
   providers: [LinksResolver, LinksService],
 })

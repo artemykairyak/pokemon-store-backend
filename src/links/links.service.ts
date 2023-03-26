@@ -9,8 +9,9 @@ import { UpdateLinkInput } from './dto/update-link.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Link } from './entities/link.entity';
+import { UsersService } from '../users/users.service';
+import { LinkTypesService } from '../link-types/link-types.service';
 import { LinkType } from '../link-types/entities/link-type.entity';
-import { User } from '../users/user.entity';
 
 @Injectable()
 export class LinksService {
@@ -18,28 +19,25 @@ export class LinksService {
     @InjectRepository(Link)
     private linkRepository: Repository<Link>,
     @InjectRepository(LinkType)
-    private linkTypeRepository: Repository<LinkType>,
-    @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private linkTypesRepository: Repository<LinkType>,
+    private readonly linkTypesService: LinkTypesService,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(userId: number, createLinkInput: CreateLinkInput) {
-    const linkType = await this.linkTypeRepository.findOne({
-      where: { name: createLinkInput.type },
-    });
+    const linkType = await this.linkTypesService.findOne(createLinkInput.type);
 
     if (!linkType) {
-      throw new NotFoundException(
-        `Link Type "${createLinkInput.type}" not found`,
+      throw new HttpException(
+        `Link Type with id ${createLinkInput.type} not found`,
+        HttpStatus.NOT_FOUND,
       );
     }
 
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-    });
+    const user = await this.usersService.getUserById(userId);
 
     const isExist = await this.linkRepository.findOne({
-      where: { user: { id: userId }, type: { name: createLinkInput.type } },
+      where: { user: { id: userId }, type: { id: createLinkInput.type } },
     });
 
     if (isExist) {
@@ -60,18 +58,19 @@ export class LinksService {
     return await this.linkRepository.save(_newLink);
   }
 
-  async findAll(userId: number) {
-    return await this.linkRepository.find({ where: { user: { id: userId } } });
-  }
-
   async update(userId: number, updateLinkInput: UpdateLinkInput) {
-    const link = await this.linkRepository.findOneOrFail({
-      where: { user: { id: userId }, type: { name: updateLinkInput.type } },
+    const link = await this.linkRepository.findOne({
+      where: { user: { id: userId }, type: { id: updateLinkInput.type } },
+      relations: ['type'],
     });
 
-    const linkType = await this.linkTypeRepository.findOneOrFail({
-      where: { name: updateLinkInput.type },
-    });
+    if (!link) {
+      throw new NotFoundException(
+        `Link with type id ${updateLinkInput.type} not found`,
+      );
+    }
+
+    const linkType = await this.linkTypesService.findOne(updateLinkInput.type);
 
     const updatedLink = {
       ...link,
@@ -82,14 +81,16 @@ export class LinksService {
     return await this.linkRepository.save(updatedLink);
   }
 
-  async remove(id: number) {
-    const link = await this.linkRepository.findOneOrFail({ where: { id } });
+  async remove(userId: number, linkId: number) {
+    const link = await this.linkRepository.findOne({
+      where: { id: linkId, user: { id: userId } },
+    });
 
     if (!link) {
-      throw new NotFoundException(`Link with ID ${id} not found`);
+      throw new NotFoundException(`Link with id ${linkId} not found`);
     }
 
-    await this.linkRepository.delete(id);
+    await this.linkRepository.delete(linkId);
     return true;
   }
 }

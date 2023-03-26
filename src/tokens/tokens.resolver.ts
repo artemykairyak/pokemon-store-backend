@@ -5,14 +5,32 @@ import { CreateTokenInput } from './dto/create-token.input';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BuyTokenInput } from './dto/buy-token.input';
+import { GetAuthorTokensInput } from './dto/get-author-tokens.input';
+import { UpdateTokenInput } from './dto/update-token.input';
+import { PaginatedData, PaginateParams } from '../common.dto';
 
 @Resolver(() => Token)
 export class TokensResolver {
   constructor(private tokensService: TokensService) {}
 
+  @Query(() => PaginatedData)
+  async getAllTokens(
+    @Args('params') { page, limit }: PaginateParams,
+  ): Promise<PaginatedData> {
+    const { tokens, total } = await this.tokensService.findAll(page, limit);
+    return { data: tokens, total };
+  }
+
   @Query(() => [Token])
-  getAllTokens() {
-    return this.tokensService.findAll();
+  getTokensByType(@Args('type') type: string) {
+    return this.tokensService.findAllByType(type);
+  }
+
+  @Query(() => [Token])
+  getUserTokens(
+    @Args('getAuthorTokensInput') { userId, owned }: GetAuthorTokensInput,
+  ) {
+    return this.tokensService.findAllUserTokens(userId, owned);
   }
 
   @Query(() => Token)
@@ -29,12 +47,6 @@ export class TokensResolver {
     return this.tokensService.create(context.req?.user.id, createTokenInput);
   }
 
-  @Mutation(() => Boolean)
-  @UseGuards(JwtAuthGuard)
-  removeToken(@Args('id', { type: () => Int }) id: number, @Context() context) {
-    return this.tokensService.remove(context.req?.user.id, id);
-  }
-
   @Query(() => Token)
   @UseGuards(JwtAuthGuard)
   buyToken(
@@ -42,5 +54,20 @@ export class TokensResolver {
     @Context() context,
   ) {
     return this.tokensService.buy(context.req?.user.id, buyTokenInput);
+  }
+
+  @Mutation(() => Token)
+  @UseGuards(JwtAuthGuard)
+  updateToken(
+    @Args('updateTokenInput') updateTokenInput: UpdateTokenInput,
+    @Context() context,
+  ) {
+    return this.tokensService.update(context.req?.user.id, updateTokenInput);
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  removeToken(@Args('id', { type: () => Int }) id: number, @Context() context) {
+    return this.tokensService.remove(context.req?.user.id, id);
   }
 }

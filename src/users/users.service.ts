@@ -1,10 +1,16 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserInput } from './dto/create-user.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { StatsService } from '../stats/stats.service';
 import { Operation } from '../types';
+import { UpdateUserInput } from './dto/update-user.input';
 
 @Injectable()
 export class UsersService {
@@ -35,14 +41,16 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  getAllUsers() {
-    return this.usersRepository.find();
+  async getAllUsers() {
+    const users = await this.usersRepository.find();
+
+    return users.map((item) => ({ ...item, password: '' }));
   }
 
-  async getUserByUsername(username: string) {
+  async getUserByUsername(username: string, forValidating?: boolean) {
     const user = await this.usersRepository.findOne({
       where: { username },
-      relations: ['links', 'ownedTokens', 'authoredTokens'],
+      relations: ['links', 'links.type', 'ownedTokens', 'authoredTokens'],
     });
 
     if (!user) {
@@ -50,6 +58,10 @@ export class UsersService {
         `User with username ${username} doesn't exists`,
         HttpStatus.NOT_FOUND,
       );
+    }
+
+    if (!forValidating) {
+      return { ...user, password: '' };
     }
 
     return user;
@@ -68,7 +80,25 @@ export class UsersService {
       );
     }
 
-    return user;
+    return { ...user, password: '' };
+  }
+
+  async update(userId: number, updateUserInput: UpdateUserInput) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: ['links', 'links.type'],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with id ${userId} not found`);
+    }
+
+    const updatedUser = {
+      ...user,
+      ...updateUserInput,
+    };
+
+    return await this.usersRepository.save(updatedUser);
   }
 
   async updateCreatedTokensCount(userId: number, operation: Operation) {

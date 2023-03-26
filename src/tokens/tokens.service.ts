@@ -3,27 +3,28 @@ import { Token } from './token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateTokenInput } from './dto/create-token.input';
-import { TokenType } from '../token-types/entities/token-type.entity';
 import { User } from '../users/user.entity';
 import { StatsService } from '../stats/stats.service';
 import { UsersService } from '../users/users.service';
 import { BuyTokenInput } from './dto/buy-token.input';
+import { TokenTypesService } from '../token-types/token-types.service';
+import { getTokensForResponse } from '../utils/utils';
+import { UpdateTokenInput } from './dto/update-token.input';
 
 @Injectable()
 export class TokensService {
   constructor(
     @InjectRepository(Token)
     private tokensRepository: Repository<Token>,
-    @InjectRepository(TokenType)
-    private tokenTypesRepository: Repository<TokenType>,
+    private readonly tokenTypesService: TokenTypesService,
     private readonly statsService: StatsService,
     private readonly usersService: UsersService,
   ) {}
 
   async create(userId: number, createTokenInput: CreateTokenInput) {
-    const tokenType = await this.tokenTypesRepository.findOne({
-      where: { name: createTokenInput.type },
-    });
+    const tokenType = await this.tokenTypesService.findOne(
+      createTokenInput.type,
+    );
 
     if (!tokenType) {
       throw new HttpException(
@@ -53,18 +54,52 @@ export class TokensService {
     return this.tokensRepository.save(newToken);
   }
 
-  async findAll() {
+  async findAll(page, limit) {
+    const [tokens, total] = await this.tokensRepository.findAndCount({
+      relations: ['author', 'type', 'owner'],
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return { tokens: getTokensForResponse(tokens), total };
+  }
+
+  async findAllByType(tokenType: string) {
+    const type = await this.tokenTypesService.findOne(tokenType);
+
+    if (!type) {
+      throw new HttpException(
+        `Token Type with name ${tokenType} doesn't exist`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const tokens = await this.tokensRepository.find({
+      where: { type },
       relations: ['author', 'type', 'owner'],
     });
 
-    return tokens.map((item) => {
-      if (item.owner) {
-        return item;
-      }
+    return getTokensForResponse(tokens);
+  }
 
-      return { ...item, owner: { id: null, username: null } as User };
+  async findAllUserTokens(userId: number, owned: boolean) {
+    const user = await this.usersService.getUserById(userId);
+
+    if (!user) {
+      throw new HttpException(
+        `User with id ${userId} doesn't exist`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const whereField = owned ? { owner: user } : { author: user };
+
+    const tokens = await this.tokensRepository.find({
+      where: whereField,
+      relations: ['author', 'type', 'owner'],
     });
+
+    return getTokensForResponse(tokens);
   }
 
   async findOne(id: number) {
@@ -77,6 +112,82 @@ export class TokensService {
       ...token,
       owner: token.owner || ({ id: null, username: null } as User),
     };
+  }
+
+  async update(userId: number, updateTokenInput: UpdateTokenInput) {
+    const token = await this.tokensRepository.findOne({
+      where: { id: updateTokenInput.id, author: { id: userId } },
+      relations: ['author', 'owner', 'type'],
+    });
+
+    if (!token) {
+      throw new HttpException(
+        `Token with id ${updateTokenInput.id} doesn't exists or you are not the author`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (token.owner) {
+      throw new HttpException(
+        `This token is already purchased`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    let type;
+
+    if (updateTokenInput.type) {
+      type = await this.tokenTypesService.findOne(updateTokenInput.type);
+
+      if (!type) {
+        throw new HttpException(
+          `Type ${updateTokenInput.type} doesn't exists`,
+          HttpStatus.NOT_FOUND,
+        );
+      }
+    }
+
+    const updatedToken = {
+      ...token,
+      ...updateTokenInput,
+      type: type || token.type,
+    };
+
+    return await this.tokensRepository.save(updatedToken);
+  }
+
+  async buy(userId: number, buyTokenInput: BuyTokenInput) {
+    const token = await this.tokensRepository.findOne({
+      where: { id: buyTokenInput.id },
+      relations: ['author', 'type', 'owner'],
+    });
+
+    const user = await this.usersService.getUserById(userId);
+
+    if (token.owner) {
+      throw new HttpException(
+        `This token has already bought`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (token.author.id === userId) {
+      throw new HttpException(
+        `You cannot buy your own token`,
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (buyTokenInput.price < token.price) {
+      throw new HttpException(`Your price too small`, HttpStatus.FORBIDDEN);
+    }
+
+    token.owner = user;
+    token.price = buyTokenInput.price;
+    await this.tokensRepository.save(token);
+    await this.usersService.updateBoughtTokensCount(userId, 'increase');
+
+    return token;
   }
 
   async remove(userId: number, id: number) {
@@ -112,39 +223,5 @@ export class TokensService {
     await this.tokensRepository.delete(id);
     await this.statsService.update({ updateField: 'tokensCount' }, 'decrease');
     return true;
-  }
-
-  async buy(userId: number, buyTokenInput: BuyTokenInput) {
-    const token = await this.tokensRepository.findOne({
-      where: { id: buyTokenInput.id },
-      relations: ['author', 'type', 'owner'],
-    });
-
-    const user = await this.usersService.getUserById(userId);
-
-    if (token.owner) {
-      throw new HttpException(
-        `This token has already bought`,
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
-    if (token.author.id === userId) {
-      throw new HttpException(
-        `You cannot buy your own token`,
-        HttpStatus.FORBIDDEN,
-      );
-    }
-
-    if (buyTokenInput.price < token.price) {
-      throw new HttpException(`Your price too small`, HttpStatus.FORBIDDEN);
-    }
-
-    token.owner = user;
-    token.price = buyTokenInput.price;
-    await this.tokensRepository.save(token);
-    await this.usersService.updateBoughtTokensCount(userId, 'increase');
-
-    return token;
   }
 }

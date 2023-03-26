@@ -23,8 +23,16 @@ export class User {
   email: string;
 
   @Column()
-  @Field()
+  @Field({ nullable: true })
   bio: string;
+
+  @Column()
+  @Field({ nullable: true })
+  picture: string;
+
+  @Column()
+  @Field({ nullable: true })
+  cover: string;
 
   @Column()
   @Field()
@@ -35,14 +43,14 @@ export class User {
   createdTokensCount: number;
 
   @OneToMany(() => Token, (token) => token.owner)
-  @Field(() => [Token], { nullable: true })
+  @Field(() => [Token], { nullable: true, defaultValue: [] })
   ownedTokens?: Token[];
 
   @OneToMany(() => Token, (token) => token.author)
-  @Field(() => [Token], { nullable: true })
+  @Field(() => [Token], { nullable: true, defaultValue: [] })
   authoredTokens?: Token[];
 
   @OneToMany(() => Link, (link) => link.user)
-  @Field(() => [Link], { nullable: true })
+  @Field(() => [Link], { nullable: true, defaultValue: [] })
   links?: Link[];
 }
