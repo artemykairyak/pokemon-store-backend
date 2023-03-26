@@ -18,7 +18,7 @@ export class Token {
   @Field()
   picture: string;
 
-  @Column()
+  @Column('text')
   @Field()
   description?: string;
 

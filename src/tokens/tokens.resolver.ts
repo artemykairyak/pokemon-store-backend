@@ -22,6 +22,11 @@ export class TokensResolver {
   }
 
   @Query(() => [Token])
+  getRandomTokens(@Args('count', { type: () => Int }) count: number) {
+    return this.tokensService.findRandom(count);
+  }
+
+  @Query(() => [Token])
   getTokensByType(@Args('type') type: string) {
     return this.tokensService.findAllByType(type);
   }

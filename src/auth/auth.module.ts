@@ -7,6 +7,8 @@ import { UsersModule } from '../users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtStrategy } from './jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../users/user.entity';
 
 @Module({
   imports: [
@@ -16,6 +18,7 @@ import { JwtModule } from '@nestjs/jwt';
       signOptions: { expiresIn: process.env.JWT_EXPIRE_TIME },
       secret: process.env.JWT_SECRET,
     }),
+    TypeOrmModule.forFeature([User]),
     UsersModule,
   ],
   providers: [AuthService, AuthResolver, LocalStrategy, JwtStrategy],

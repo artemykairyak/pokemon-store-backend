@@ -82,6 +82,19 @@ export class TokensService {
     return getTokensForResponse(tokens);
   }
 
+  async findRandom(count: number) {
+    const tokens = await this.tokensRepository
+      .createQueryBuilder('token')
+      .leftJoinAndSelect('token.author', 'author')
+      .leftJoinAndSelect('token.type', 'type')
+      .leftJoinAndSelect('token.owner', 'owner')
+      .orderBy('RAND()')
+      .limit(count)
+      .getMany();
+
+    return getTokensForResponse(tokens);
+  }
+
   async findAllUserTokens(userId: number, owned: boolean) {
     const user = await this.usersService.getUserById(userId);
 
