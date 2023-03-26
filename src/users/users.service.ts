@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { StatsService } from '../stats/stats.service';
 import { Operation } from '../types';
 import { UpdateUserInput } from './dto/update-user.input';
+import { getUserWithoutPassword } from '../utils/utils';
 
 @Injectable()
 export class UsersService {
@@ -41,10 +42,14 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async getAllUsers() {
-    const users = await this.usersRepository.find();
+  async getAllUsers(page: number, limit: number) {
+    const [users, total] = await this.usersRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdTokensCount: 'DESC' },
+    });
 
-    return users.map((item) => ({ ...item, password: '' }));
+    return { users: getUserWithoutPassword(users), total };
   }
 
   async getUserByUsername(username: string, forValidating?: boolean) {

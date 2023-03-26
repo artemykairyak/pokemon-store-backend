@@ -54,7 +54,7 @@ export class TokensService {
     return this.tokensRepository.save(newToken);
   }
 
-  async findAll(page, limit) {
+  async findAll(page: number, limit: number) {
     const [tokens, total] = await this.tokensRepository.findAndCount({
       relations: ['author', 'type', 'owner'],
       skip: (page - 1) * limit,

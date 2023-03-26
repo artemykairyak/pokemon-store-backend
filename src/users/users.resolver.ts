@@ -5,6 +5,7 @@ import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { PaginatedUsersData, PaginateParams } from '../common.dto';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -15,9 +16,12 @@ export class UsersResolver {
     return await this.usersService.createUser(createUserInput);
   }
 
-  @Query(() => [User])
-  getAllUsers() {
-    return this.usersService.getAllUsers();
+  @Query(() => PaginatedUsersData)
+  async getAllUsers(
+    @Args('params') { page, limit }: PaginateParams,
+  ): Promise<PaginatedUsersData> {
+    const { users, total } = await this.usersService.getAllUsers(page, limit);
+    return { data: users, total };
   }
 
   @Query(() => User)

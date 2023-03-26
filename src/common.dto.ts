@@ -1,7 +1,8 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql';
 import { IsNumber } from 'class-validator';
-import { Token } from './tokens/token.entity';
 import { DEFAULT_LIMIT, INITIAL_PAGE } from './constants';
+import { Token } from './tokens/token.entity';
+import { User } from './users/user.entity';
 
 @InputType()
 export class PaginateParams {
@@ -13,11 +14,20 @@ export class PaginateParams {
   limit?: number;
 }
 
+@ObjectType({ isAbstract: true })
+abstract class PaginatedData {
+  @Field(() => Int)
+  total: number;
+}
+
 @ObjectType()
-export class PaginatedData {
+export class PaginatedTokensData extends PaginatedData {
   @Field(() => [Token])
   data: Token[];
+}
 
-  @Field(() => Int, { nullable: true })
-  total: number;
+@ObjectType()
+export class PaginatedUsersData extends PaginatedData {
+  @Field(() => [User])
+  data: User[];
 }

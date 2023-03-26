@@ -18,3 +18,7 @@ export const getTokensForResponse = (tokens: Token[]) => {
     return { ...item, owner: { id: null, username: null } as User };
   });
 };
+
+export const getUserWithoutPassword = (users: User[]) => {
+  return users.map((item) => ({ ...item, password: '' }));
+};

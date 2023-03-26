@@ -7,16 +7,16 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { BuyTokenInput } from './dto/buy-token.input';
 import { GetAuthorTokensInput } from './dto/get-author-tokens.input';
 import { UpdateTokenInput } from './dto/update-token.input';
-import { PaginatedData, PaginateParams } from '../common.dto';
+import { PaginatedTokensData, PaginateParams } from '../common.dto';
 
 @Resolver(() => Token)
 export class TokensResolver {
   constructor(private tokensService: TokensService) {}
 
-  @Query(() => PaginatedData)
+  @Query(() => PaginatedTokensData)
   async getAllTokens(
     @Args('params') { page, limit }: PaginateParams,
-  ): Promise<PaginatedData> {
+  ): Promise<PaginatedTokensData> {
     const { tokens, total } = await this.tokensService.findAll(page, limit);
     return { data: tokens, total };
   }
