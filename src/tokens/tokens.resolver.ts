@@ -31,11 +31,18 @@ export class TokensResolver {
     return this.tokensService.findAllByType(type);
   }
 
-  @Query(() => [Token])
-  getUserTokens(
-    @Args('getAuthorTokensInput') { userId, owned }: GetAuthorTokensInput,
-  ) {
-    return this.tokensService.findAllUserTokens(userId, owned);
+  @Query(() => PaginatedTokensData)
+  async getUserTokens(
+    @Args('getAuthorTokensInput') { username, owned }: GetAuthorTokensInput,
+    @Args('params') { page, limit }: PaginateParams,
+  ): Promise<PaginatedTokensData> {
+    const { tokens, total } = await this.tokensService.findAllUserTokens(
+      username,
+      owned,
+      page,
+      limit,
+    );
+    return { data: tokens, total };
   }
 
   @Query(() => Token)

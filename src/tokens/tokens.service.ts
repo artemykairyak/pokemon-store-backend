@@ -95,24 +95,33 @@ export class TokensService {
     return getTokensForResponse(tokens);
   }
 
-  async findAllUserTokens(userId: number, owned: boolean) {
-    const user = await this.usersService.getUserById(userId);
+  async findAllUserTokens(
+    username: string,
+    owned: boolean,
+    page: number,
+    limit: number,
+  ) {
+    const user = await this.usersService.getUserByUsername(username);
 
     if (!user) {
       throw new HttpException(
-        `User with id ${userId} doesn't exist`,
+        `User with username ${username} doesn't exist`,
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    const whereField = owned ? { owner: user } : { author: user };
+    const whereField = owned
+      ? { owner: { username } }
+      : { author: { username } };
 
-    const tokens = await this.tokensRepository.find({
+    const [tokens, total] = await this.tokensRepository.findAndCount({
       where: whereField,
       relations: ['author', 'type', 'owner'],
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
-    return getTokensForResponse(tokens);
+    return { tokens: getTokensForResponse(tokens), total };
   }
 
   async findOne(id: number) {

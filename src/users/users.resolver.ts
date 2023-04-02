@@ -20,7 +20,7 @@ export class UsersResolver {
   async getAllUsers(
     @Args('params') { page, limit }: PaginateParams,
   ): Promise<PaginatedUsersData> {
-    const { users, total } = await this.usersService.getAllUsers(page, limit);
+    const { users, total } = await this.usersService.findAll(page, limit);
     return { data: users, total };
   }
 

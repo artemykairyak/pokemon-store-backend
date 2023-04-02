@@ -22,3 +22,15 @@ export const getTokensForResponse = (tokens: Token[]) => {
 export const getUserWithoutPassword = (users: User[]) => {
   return users.map((item) => ({ ...item, password: '' }));
 };
+
+export const parseCookieString = (cookieString: string) => {
+  const cookies = {};
+  const cookieList = cookieString.split(';');
+  for (let i = 0; i < cookieList.length; i++) {
+    const parts = cookieList[i].trim().split('=');
+    const name = decodeURIComponent(parts[0]);
+    cookies[name] = decodeURIComponent(parts[1]);
+  }
+
+  return cookies;
+};

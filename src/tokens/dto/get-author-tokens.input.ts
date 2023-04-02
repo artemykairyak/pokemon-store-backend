@@ -1,12 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 @InputType()
 export class GetAuthorTokensInput {
   @Field()
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  userId: number;
+  username: string;
 
   @Field({ nullable: true, defaultValue: false })
   @IsBoolean()

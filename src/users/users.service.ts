@@ -42,7 +42,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async getAllUsers(page: number, limit: number) {
+  async findAll(page: number, limit: number) {
     const [users, total] = await this.usersRepository.findAndCount({
       skip: (page - 1) * limit,
       take: limit,
@@ -55,7 +55,14 @@ export class UsersService {
   async getUserByUsername(username: string, forValidating?: boolean) {
     const user = await this.usersRepository.findOne({
       where: { username },
-      relations: ['links', 'links.type', 'ownedTokens', 'authoredTokens'],
+      relations: [
+        'links',
+        'links.type',
+        'ownedTokens',
+        'ownedTokens.author',
+        'authoredTokens',
+        'authoredTokens.author',
+      ],
     });
 
     if (!user) {
