@@ -25,11 +25,13 @@ export class LinksService {
   ) {}
 
   async create(userId: number, createLinkInput: CreateLinkInput) {
-    const linkType = await this.linkTypesService.findOne(createLinkInput.type);
+    const linkType = await this.linkTypesRepository.findOne({
+      where: { name: createLinkInput.type },
+    });
 
     if (!linkType) {
       throw new HttpException(
-        `Link Type with id ${createLinkInput.type} not found`,
+        `Link Type with type ${createLinkInput.type} not found`,
         HttpStatus.NOT_FOUND,
       );
     }
@@ -37,7 +39,7 @@ export class LinksService {
     const user = await this.usersService.getUserById(userId);
 
     const isExist = await this.linkRepository.findOne({
-      where: { user: { id: userId }, type: { id: createLinkInput.type } },
+      where: { user: { id: userId }, type: { name: createLinkInput.type } },
     });
 
     if (isExist) {
@@ -60,7 +62,7 @@ export class LinksService {
 
   async update(userId: number, updateLinkInput: UpdateLinkInput) {
     const link = await this.linkRepository.findOne({
-      where: { user: { id: userId }, type: { id: updateLinkInput.type } },
+      where: { user: { id: userId }, type: { name: updateLinkInput.type } },
       relations: ['type'],
     });
 
@@ -70,7 +72,9 @@ export class LinksService {
       );
     }
 
-    const linkType = await this.linkTypesService.findOne(updateLinkInput.type);
+    const linkType = await this.linkTypesRepository.findOne({
+      where: { name: updateLinkInput.type },
+    });
 
     const updatedLink = {
       ...link,
@@ -81,16 +85,16 @@ export class LinksService {
     return await this.linkRepository.save(updatedLink);
   }
 
-  async remove(userId: number, linkId: number) {
+  async remove(userId: number, linkType: string) {
     const link = await this.linkRepository.findOne({
-      where: { id: linkId, user: { id: userId } },
+      where: { type: { name: linkType }, user: { id: userId } },
     });
 
     if (!link) {
-      throw new NotFoundException(`Link with id ${linkId} not found`);
+      throw new NotFoundException(`Link with type ${linkType} not found`);
     }
 
-    await this.linkRepository.delete(linkId);
+    await this.linkRepository.delete(link);
     return true;
   }
 }

@@ -1,4 +1,4 @@
-import { Args, Context, Int, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { LinksService } from './links.service';
 import { Link } from './entities/link.entity';
 import { CreateLinkInput } from './dto/create-link.input';
@@ -31,10 +31,7 @@ export class LinksResolver {
 
   @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
-  removeLink(
-    @Args('id', { type: () => Int }) linkId: number,
-    @Context() context,
-  ) {
-    return this.linksService.remove(context.req?.user.id, linkId);
+  removeLink(@Args('type') linkType: string, @Context() context) {
+    return this.linksService.remove(context.req?.user.id, linkType);
   }
 }
