@@ -10,6 +10,7 @@ import { BuyTokenInput } from './dto/buy-token.input';
 import { TokenTypesService } from '../token-types/token-types.service';
 import { getTokensForResponse } from '../utils/utils';
 import { UpdateTokenInput } from './dto/update-token.input';
+import { GetRandomTokensInput } from './dto/get-random-tokens.input';
 
 @Injectable()
 export class TokensService {
@@ -82,17 +83,22 @@ export class TokensService {
     return getTokensForResponse(tokens);
   }
 
-  async findRandom(count: number) {
+  async findRandom({ count, username }: GetRandomTokensInput) {
     const tokens = await this.tokensRepository
       .createQueryBuilder('token')
       .leftJoinAndSelect('token.author', 'author')
       .leftJoinAndSelect('token.type', 'type')
       .leftJoinAndSelect('token.owner', 'owner')
       .orderBy('RAND()')
-      .limit(count)
-      .getMany();
+      .limit(count);
 
-    return getTokensForResponse(tokens);
+    if (username) {
+      tokens.where('author.username = :username', { username });
+    }
+
+    const res = await tokens.getMany();
+
+    return getTokensForResponse(res);
   }
 
   async findAllUserTokens(

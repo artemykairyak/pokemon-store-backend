@@ -8,6 +8,7 @@ import { BuyTokenInput } from './dto/buy-token.input';
 import { GetAuthorTokensInput } from './dto/get-author-tokens.input';
 import { UpdateTokenInput } from './dto/update-token.input';
 import { PaginatedTokensData, PaginateParams } from '../common.dto';
+import { GetRandomTokensInput } from './dto/get-random-tokens.input';
 
 @Resolver(() => Token)
 export class TokensResolver {
@@ -22,8 +23,10 @@ export class TokensResolver {
   }
 
   @Query(() => [Token])
-  getRandomTokens(@Args('count', { type: () => Int }) count: number) {
-    return this.tokensService.findRandom(count);
+  getRandomTokens(
+    @Args('getRandomTokensInput') getRandomTokensInput: GetRandomTokensInput,
+  ) {
+    return this.tokensService.findRandom(getRandomTokensInput);
   }
 
   @Query(() => [Token])
