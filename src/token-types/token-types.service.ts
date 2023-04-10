@@ -38,10 +38,14 @@ export class TokenTypesService {
     return await this.tokenTypeRepository.save(newTokenType);
   }
 
-  findAll() {
-    return this.tokenTypeRepository.find({
+  async findAll(page: number, limit: number) {
+    const [tokenTypes, total] = await this.tokenTypeRepository.findAndCount({
       relations: ['tokens'],
+      skip: (page - 1) * limit,
+      take: limit,
     });
+
+    return { tokenTypes, total };
   }
 
   findOne(id: string) {

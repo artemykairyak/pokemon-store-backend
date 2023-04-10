@@ -3,6 +3,7 @@ import { IsNumber } from 'class-validator';
 import { DEFAULT_LIMIT, INITIAL_PAGE } from './constants';
 import { Token } from './tokens/token.entity';
 import { User } from './users/user.entity';
+import { TokenType } from './token-types/entities/token-type.entity';
 
 @InputType()
 export class PaginateParams {
@@ -24,6 +25,12 @@ abstract class PaginatedData {
 export class PaginatedTokensData extends PaginatedData {
   @Field(() => [Token])
   data: Token[];
+}
+
+@ObjectType()
+export class PaginatedTokenTypesData extends PaginatedData {
+  @Field(() => [TokenType])
+  data: TokenType[];
 }
 
 @ObjectType()

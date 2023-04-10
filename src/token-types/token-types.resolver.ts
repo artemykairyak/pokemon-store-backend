@@ -2,6 +2,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { TokenTypesService } from './token-types.service';
 import { TokenType } from './entities/token-type.entity';
 import { CreateTokenTypeInput } from './dto/create-token-type.input';
+import { PaginatedTokenTypesData, PaginateParams } from '../common.dto';
 
 @Resolver(() => TokenType)
 export class TokenTypesResolver {
@@ -14,9 +15,16 @@ export class TokenTypesResolver {
     return this.tokenTypesService.create(createTokenTypeInput);
   }
 
-  @Query(() => [TokenType])
-  getAllTokenTypes() {
-    return this.tokenTypesService.findAll();
+  @Query(() => PaginatedTokenTypesData)
+  async getTokenTypes(
+    @Args('params') { page, limit }: PaginateParams,
+  ): Promise<PaginatedTokenTypesData> {
+    const { tokenTypes, total } = await this.tokenTypesService.findAll(
+      page,
+      limit,
+    );
+
+    return { data: tokenTypes, total };
   }
 
   @Query(() => TokenType)
