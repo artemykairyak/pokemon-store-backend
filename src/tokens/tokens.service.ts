@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Token } from './token.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, In, Like, Repository } from 'typeorm';
 import { CreateTokenInput } from './dto/create-token.input';
 import { User } from '../users/user.entity';
 import { StatsService } from '../stats/stats.service';
@@ -11,6 +11,7 @@ import { TokenTypesService } from '../token-types/token-types.service';
 import { getTokensForResponse } from '../utils/utils';
 import { UpdateTokenInput } from './dto/update-token.input';
 import { GetRandomTokensInput } from './dto/get-random-tokens.input';
+import { TokensFilterParams } from '../common.dto';
 
 @Injectable()
 export class TokensService {
@@ -55,8 +56,19 @@ export class TokensService {
     return this.tokensRepository.save(newToken);
   }
 
-  async findAll(page: number, limit: number) {
+  async findAll(page: number, limit: number, filters?: TokensFilterParams) {
+    const where: FindManyOptions['where'] = {};
+
+    if (filters.types) {
+      where.type = In(filters.types.split(','));
+    }
+
+    if (filters.search) {
+      where.name = Like(`%${filters.search}%`);
+    }
+
     const [tokens, total] = await this.tokensRepository.findAndCount({
+      where,
       relations: ['author', 'type', 'owner'],
       skip: (page - 1) * limit,
       take: limit,
