@@ -77,7 +77,7 @@ export class TokensResolver {
     return this.tokensService.create(context.req?.user.id, createTokenInput);
   }
 
-  @Query(() => Token)
+  @Mutation(() => Token)
   @UseGuards(JwtAuthGuard)
   buyToken(
     @Args('buyTokenInput') buyTokenInput: BuyTokenInput,

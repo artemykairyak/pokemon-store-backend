@@ -12,4 +12,9 @@ export class GetRandomTokensInput {
   @IsString()
   @IsOptional()
   username?: string;
+
+  @Field({ nullable: true })
+  @IsNumber()
+  @IsOptional()
+  excludedId?: number;
 }

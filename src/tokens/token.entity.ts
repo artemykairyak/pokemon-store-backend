@@ -22,8 +22,8 @@ export class Token {
   @Field()
   description?: string;
 
-  @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2 })
-  @Field(() => Float, { nullable: true })
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Field(() => Float)
   price: number;
 
   @ManyToOne(() => TokenType, (type) => type.tokens)

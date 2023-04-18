@@ -46,6 +46,7 @@ export class TokensService {
 
     const newToken = {
       ...createTokenInput,
+      description: createTokenInput.description.replace(/\r?\n/g, '\\n'),
       type: tokenType,
       author,
     };
@@ -95,7 +96,7 @@ export class TokensService {
     return getTokensForResponse(tokens);
   }
 
-  async findRandom({ count, username }: GetRandomTokensInput) {
+  async findRandom({ count, username, excludedId }: GetRandomTokensInput) {
     const tokens = await this.tokensRepository
       .createQueryBuilder('token')
       .leftJoinAndSelect('token.author', 'author')
@@ -106,6 +107,10 @@ export class TokensService {
 
     if (username) {
       tokens.where('author.username = :username', { username });
+    }
+
+    if (excludedId) {
+      tokens.andWhere('token.id != :excludedId', { excludedId });
     }
 
     const res = await tokens.getMany();
