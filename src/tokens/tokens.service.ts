@@ -102,6 +102,7 @@ export class TokensService {
       .leftJoinAndSelect('token.author', 'author')
       .leftJoinAndSelect('token.type', 'type')
       .leftJoinAndSelect('token.owner', 'owner')
+      .where('owner.id IS NULL')
       .orderBy('RAND()')
       .limit(count);
 
