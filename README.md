@@ -5,7 +5,7 @@ Backend app for NFT-marketplace.
 Stack:
 
 * NestJS
-* GraphGL
+* GraphQL
 * TypeORM
 * MySQL
 * Authentication with JWT Passport.
@@ -28,4 +28,4 @@ $ yarn run start:dev
 # production mode
 $ yarn run start:prod
 ```
-[**Front-end**](https://github.com/artemykairyak/pokemon-store) | [**Link**](https://pokemon-store-peach.vercel.app)
+[**Frontend**](https://github.com/artemykairyak/pokemon-store) | [**Link**](https://pokemon-store-peach.vercel.app)
